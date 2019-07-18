@@ -1,0 +1,186 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class ix_domain extends CI_Controller {
+    
+    function __construct() {
+        parent::__construct();  
+        $this->load->model('mod_apps');
+        $this->load->model('mod_database');
+        $this->load->model('mod_deletedata');
+        date_default_timezone_set('Asia/Jakarta');
+    }
+    
+    public function index() {
+        if ($this->session->userdata('sess_apps') == TRUE) {
+            
+            $data['STR_PAGE']       = 'PAGE_MST_DATA_DOMAIN_INT';
+            $data['TITLE']          = 'Master Data Data Domain International';
+            $data['SUB_TITLE']      = 'Data Master Domain International';
+
+            $query = "select customer_code, lowdo_user from framework123.um_user left join atex.log_data_order on um_user_id = lowdo_kode_user where um_user_id = '".$this->session->userdata('u_id')."'";
+            $data['cust'] = $this->mod_database->getQuery($query);
+            
+            $TABLE                  = "log_data_order";
+            $SORT_FIELD             = "lowdo_created";
+            $SORT_VAR               = "ASC";
+            $SELECT_SHOW            = "uset_modul, uset_kode, uset_value1, uset_value5, uset_date_upd";
+            $VIEW_VAR               = "log_data_order.lowdo_created,lowdo_cust_kode,lowdo_mswb_nomor as mswb_nomor,lowdo_shipment_nomor as shipment_nomor,lowdo_cust_nama as cust_nama,lowdo_cust_email as cust_email,lowdo_cust_telp as cust_telp,lowdo_status_kode as status_kode,lowdo_kode_user as kode_user,lowdo_user as user,lowdo_kode_toko as kode_toko,lowdo_kode_ecommers as kode_ecommers,lowdo_mount_payment as mount_payment";
+            
+            $data['dataAll'] = $this->mod_database_atex->getDataJx($TABLE, $SORT_FIELD, $SORT_VAR, $VIEW_VAR);
+            
+            $this->load->view('dashboard', $data);
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+    public function formadd() {
+        if ($this->session->userdata('sess_apps') == TRUE) {
+            
+            $data['STR_PAGE']       = 'PAGE_MST_DATA_ORDER_ADDFORM';
+            $data['TITLE']          = 'Master Data Order';
+            $data['SUB_TITLE']      = 'Add New';
+
+            $this->load->view('dashboard', $data);
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+    public function savedata() {
+        if ($this->session->userdata('sess_apps') == TRUE) {
+            
+            $DESC           = trim(strip_tags($this->input->post('lowdo_mswb_nomor')));
+
+            $TABLE          = 'log_data_order';
+            $LOCK_FIELD     = 'lowdo_mswb_nomor';
+            $LOCK_VAR       = $DESC;
+            $checkData      = $this->mod_database_atex->getDataSelected($TABLE, $LOCK_FIELD, $LOCK_VAR);
+            
+            if($checkData->num_rows() > 0) {
+                echo "<script>
+                        alert('AWB Number already exist.');
+                        window.history.back();
+                      </script>";
+            } else {
+                
+                $data = array('awb' => $this->input->post('lowdo_mswb_nomor'),
+                    'shipmentNumber' => $this->input->post('lowdo_shipment_nomor'),
+                    'customerName' => $this->input->post('lowdo_cust_nama'),
+                    'customerEmail' => $this->input->post('lowdo_cust_email') ,
+                    'customerPhone' => $this->input->post('lowdo_cust_telp') ,
+                    'ecommerceCode' => $this->input->post('lowdo_kode_ecommers'),
+                    'statusCode' => 1,
+                    'storeCode' => $this->input->post('lowdo_kode_toko'),
+                    'statusPayment' => 1,
+                    'amountPayment' => $this->input->post('lowdo_mount_payment'));
+                 $data_string = json_encode($data);
+
+                 //sent order
+                $ch = curl_init('http://stg.alfatrex.co.id/v1/order');                                                                      
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);                                                                  
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);                                                                      
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
+                'Security-Key: y3RDyqtijzVh6zdR9uWCoVW4TcmEwbbZ', 
+                'user: atri', 
+                'Content-Type: application/json',                                                                                
+                'Content-Length: ' . strlen($data_string))                                                                       
+                );
+                
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+
+                $result = curl_exec($ch);
+                echo $result;
+
+                $this->mod_dataorder->saveDataOrder();
+                redirect(base_url('dataorder'));
+            }
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    public function editDataOrder() {
+        if ($this->session->userdata('sess_apps') == TRUE) {
+
+            $this->mod_dataorder->editdata();
+            redirect(base_url('dataorder'));
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+    public function trash($ID_CODE) {
+        if($this->session->userdata('sess_apps') == TRUE) {
+           
+            $TABLE_NAME = 'log_data_order';
+            $FIELD_LOCK = 'lowdo_mswb_nomor';
+            
+            $query = $this->mod_deletedata->trashData($ID_CODE, $TABLE_NAME, $FIELD_LOCK);
+            
+            redirect(base_url('dataorder'));
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+    public function formUpdate($LOCK_ID) {
+        if ($this->session->userdata('sess_apps') == TRUE) {
+            
+            $data['STR_PAGE']       = 'PAGE_MST_DATA_ORDER_FORMUPDATE';
+            $data['TITLE']          = 'Master Data Order';
+            $data['SUB_TITLE']      = 'Edit Data';
+            
+            $TABLE_NAME             = 'log_data_order';
+            $FIELD_LOCK             = 'lowdo_mswb_nomor';
+            $data['dataSelected']   = $this->mod_database_atex->getDataSelected($TABLE_NAME, $FIELD_LOCK, $LOCK_ID);
+
+            $data['LOCK_ID']        = $LOCK_ID;
+            
+            $this->load->view('dashboard', $data);
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+    public function updatedata($LOCK_ID) {
+        if ($this->session->userdata('sess_apps') == TRUE) {
+                
+            $this->mod_dataorder->updateStore($LOCK_ID);
+            redirect(base_url('dataorder'));
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+    public function trashSelected() {
+    if($this->session->userdata('sess_apps') == TRUE) {
+            
+            $TABLE_NAME     = 'log_data_order';
+            $FIELD_LOCK     = 'lowdo_mswb_nomor';
+            $data = json_decode(stripslashes($_POST['data']));
+            foreach($data as $d){
+                $ID_CODE    = $d;
+                $query      = $this->mod_deletedata->trashData($ID_CODE, $TABLE_NAME, $FIELD_LOCK);
+            }
+            
+            if($query == TRUE) {
+                echo "success";
+                
+            } else {
+                echo "error";
+            }
+            
+        } else {
+            $this->load->view('login');
+        }
+    }
+    
+}
