@@ -15,7 +15,7 @@ class data_jemaat extends CI_Controller {
 
     function get_jemaat(){
         $nama=$this->input->post('nama');
-        $data=$this->m_pos->get_data_jemaat_byname($nama);
+        $data=$this->mod_data_jemaat->get_data_jemaat_byname($nama);
         echo json_encode($data);
     }
     
@@ -65,10 +65,35 @@ class data_jemaat extends CI_Controller {
             // $TABLE                  = "SELECT ('')um_user_id, ('')u_id, nik, nama, ('')password, (nik)username, no_induk, (Field1)no_kk, hubungan_keluarga FROM tbl_induk WHERE Field1='".$data['no_kk']."'";
             // $data['dataAll']        = $this->mod_data_jemaat->getQuery($TABLE);
 
-            $TABLE                  = "SELECT (a.tbluk_u_id) u_id_induk, (a.tbluk_nik) nik_induk, ('')um_user_id, ('')u_id, c.nik, c.nama, ('')password, c.no_induk, (c.Field1)no_kk, c.hubungan_keluarga FROM tbl_user_akses a INNER JOIN tbl_induk b ON b.nik = a.tbluk_nik INNER JOIN tbl_induk c ON c.Field1=b.Field1 WHERE a.tbluk_u_id ='".$this->session->userdata('u_id')."'";
-            $data['dataAll']        = $this->mod_data_jemaat->getQuery($TABLE);
+            // //valid
+            // $TABLE                  = "SELECT (a.tbluk_u_id) u_id_induk, (a.tbluk_nik) nik_induk, ('')um_user_id, ('')u_id, c.nik, c.nama, ('')password, c.no_induk, (c.Field1)no_kk, c.hubungan_keluarga FROM tbl_user_akses a INNER JOIN tbl_induk b ON b.nik = a.tbluk_nik INNER JOIN tbl_induk c ON c.Field1=b.Field1 WHERE a.tbluk_u_id ='".$this->session->userdata('u_id')."'";
+            // $data['dataAll']        = $this->mod_data_jemaat->getQuery($TABLE);
 
-            $this->load->view('dashboard', $data);
+            $TABLE                  = "SELECT nik FROM test_data WHERE nik ='".$this->session->userdata('u_id')."'";
+            $checkData              = $this->mod_data_jemaat->getQuery($TABLE);
+            if($checkData->num_rows() > 0) {
+                echo $this->session->set_flashdata('msg', 
+                    '<div class="alert alert-danger">
+                        <h4>Oppss</h4>
+                        <p>1. Data Sudah Tersedia.'.$this->session->userdata('u_id').'</p>
+                    </div>');
+                $TABLE                  = "SELECT nik,no_induk,(no_kk)Field1,(nama_jemaat)nama,jenis_kelamin,tempat_lahir,tgl_lahir,tempat_baptis,tgl_baptis,tempat_sidi,tgl_sidi,('')tempat_nikah,('')tgl_nikah,email FROM test_data WHERE nik ='".$this->session->userdata('u_id')."'";
+                $data['dataAll']   = $this->mod_data_jemaat->getQuery($TABLE);
+                $this->load->view('dashboard', $data);
+            } else {
+                echo $this->session->set_flashdata('msg', 
+                    '<div class="alert alert-success">
+                        <h4>Berhasil</h4>
+                        <p>1. Data Kosong.'.$this->session->userdata('u_id').'</p>
+                    </div>');
+                // $TABLE                  = "SELECT (a.tbluk_u_id) u_id_induk, (a.tbluk_nik) nik_induk, ('')um_user_id, ('')u_id, c.nik, c.nama, ('')password, c.no_induk, (c.Field1)no_kk, c.hubungan_keluarga, b.email FROM tbl_user_akses a INNER JOIN tbl_induk b ON b.nik = a.tbluk_nik INNER JOIN tbl_induk c ON c.Field1=b.Field1 WHERE a.tbluk_u_id ='".$this->session->userdata('u_id')."'";
+                $TABLE                  = "SELECT (a.tbluk_u_id) u_id_induk, (a.tbluk_nik) nik_induk, ('')um_user_id, ('')u_id, c.nik, c.nama, ('')password, c.no_induk, (c.Field1)no_kk, c.hubungan_keluarga, c.jenis_kelamin, d.email FROM tbl_user_akses a INNER JOIN tbl_induk b ON b.nik = a.tbluk_nik INNER JOIN tbl_induk c ON c.Field1=b.Field1 LEFT JOIN test_data d ON d.nik=c.nik WHERE a.tbluk_u_id ='".$this->session->userdata('u_id')."'";
+                $data['dataAll']   = $this->mod_data_jemaat->getQuery($TABLE);
+                $data['dataAll']   = $this->mod_data_jemaat->getQuery($TABLE);
+                $this->load->view('dashboard', $data);
+            }
+
+            // $this->load->view('dashboard', $data);
             
         } else {
             $this->load->view('login');
@@ -152,14 +177,53 @@ class data_jemaat extends CI_Controller {
             // $data['dataSelected']   = $this->mod_getdata->getDataSelected($TABLE_NAME, $FIELD_LOCK, $LOCK_ID);
             // $data['LOCK_ID']        = $LOCK_ID;
 
+            // // Valid
+            // $TABLE_NAME             = 'tbl_induk';
+            // $FIELD_LOCK             = 'nik';
+            // $data['dataSelected']   = $this->mod_getdata->getDataSelected($TABLE_NAME, $FIELD_LOCK, $LOCK_ID);
+            $data['LOCK_ID']        = $LOCK_ID;
+
+            $TABLE                  = "SELECT nik FROM test_data WHERE nik ='".$data['LOCK_ID']."'";
+            $checkData              = $this->mod_data_jemaat->getQuery($TABLE);
+            if($checkData->num_rows() > 0) {
+                echo $this->session->set_flashdata('msg', 
+                    '<div class="alert alert-danger">
+                        <h4>Oppss</h4>
+                        <p>1. Data '.$data['LOCK_ID'].' Sudah Tersedia.</p>
+                    </div>');
+                // $TABLE_NAME             = 'test_data';
+                // $FIELD_LOCK             = 'nik';
+                // $data['dataSelected']   = $this->mod_getdata->getDataSelected($TABLE_NAME, $FIELD_LOCK, $LOCK_ID);
+                // // $data['LOCK_ID']        = $LOCK_ID;
+                $TABLE                  = "SELECT nik,no_induk,(no_kk)Field1,(nama_jemaat)nama,jenis_kelamin,tempat_lahir,tgl_lahir,tempat_baptis,tgl_baptis,tempat_sidi,tgl_sidi,('')tempat_nikah,('')tgl_nikah,email FROM test_data WHERE nik ='".$data['LOCK_ID']."'";
+                $data['dataSelected']   = $this->mod_data_jemaat->getQuery($TABLE);
+                $this->load->view('dashboard', $data);
+            } else {
+                echo $this->session->set_flashdata('msg', 
+                    '<div class="alert alert-success">
+                        <h4>Berhasil</h4>
+                        <p>1. Data '.$data['LOCK_ID'].' Belum Tersedia.</p>
+                    </div>');
+                // $TABLE_NAME             = 'tbl_induk';
+                // $FIELD_LOCK             = 'nik';
+                // $data['dataSelected']   = $this->mod_getdata->getDataSelected($TABLE_NAME, $FIELD_LOCK, $LOCK_ID);
+                // // $data['LOCK_ID']        = $LOCK_ID;
+                $TABLE                  = "SELECT nik,no_induk,Field1,nama,jenis_kelamin,tempat_lahir,tgl_lahir,tempat_baptis,tgl_baptis,tempat_sidi,tgl_sidi,tempat_nikah,tgl_nikah,email FROM tbl_induk WHERE nik ='".$data['LOCK_ID']."'";
+                $data['dataSelected']   = $this->mod_data_jemaat->getQuery($TABLE);
+                $this->load->view('dashboard', $data);
+            }
+
+            // $TABLE                  = "SELECT nik,no_induk,Field1,nama FROM tbl_induk a WHERE EXISTS (SELECT * FROM test_data b WHERE a.nik ='".$LOCK_ID."')";
+            // $data['dataSelected']        = $this->mod_data_jemaat->getQuery($TABLE);
+            // $data['LOCK_ID']        = $LOCK_ID;
+
+            // $TABLE                  = "SELECT nik,no_induk,Field1,nama,tempat_lahir,tgl_lahir,jenis_kelamin,tempat_baptis,tgl_baptis,tempat_sidi,tgl_sidi,tempat_nikah,tgl_nikah,email FROM tbl_induk WHERE nik ='".$LOCK_ID."' UNION SELECT nik,no_induk,no_kk,nama_jemaat,tempat_lahir,tgl_lahir,('') AS jenis_kelamin,('') AS tempat_baptis,('') AS tgl_baptis,('') AS tempat_sidi,('') AS tgl_sidi,('') AS tempat_nikah,('') AS tgl_nikah,email FROM test_data ";
+            // $data['dataSelected']        = $this->mod_data_jemaat->getQuery($TABLE);
+            // $data['LOCK_ID']        = $LOCK_ID;
+
             // $TABLE          = "SELECT (a.tbluk_u_id) u_id_induk, (c.nik) nik, (b.Field1) no_kk, c.nama FROM tbl_user_akses a INNER JOIN tbl_induk b ON b.nik = a.tbluk_nik INNER JOIN tbl_induk c ON c.Field1=b.Field1 WHERE a.tbluk_u_id ='".$this->session->userdata('u_id')."'";
             // $data['dataSelected']    = $this->mod_data_jemaat->getQuery($TABLE);
             // $data['LOCK_ID']        = $LOCK_ID;
-
-            $TABLE_NAME             = 'tbl_induk';
-            $FIELD_LOCK             = 'nik';
-            $data['dataSelected']   = $this->mod_getdata->getDataSelected($TABLE_NAME, $FIELD_LOCK, $LOCK_ID);
-            $data['LOCK_ID']        = $LOCK_ID;
 
             // $FIELD_LOCK             = 'nik';
             // // $this->db->select('a.*, b.*');
@@ -171,7 +235,7 @@ class data_jemaat extends CI_Controller {
             // $data['dataSelected']   = $this->db->get();
             // $data['LOCK_ID']        = $LOCK_ID;
             
-            $this->load->view('dashboard', $data);
+            // $this->load->view('dashboard', $data);
             
         } else {
             $this->load->view('login');
@@ -205,7 +269,7 @@ class data_jemaat extends CI_Controller {
             // };
             // redirect(base_url('data_jemaat'));
 
-            $DESC       = trim(strip_tags($this->input->post('id')));
+            $DESC       = trim(strip_tags($this->input->post('nik')));
             // $DESC       = trim(strip_tags($this->input->post($LOCK_ID)));
             $TABLE          = 'test_data';
             $LOCK_FIELD     = 'nik';
@@ -213,14 +277,27 @@ class data_jemaat extends CI_Controller {
             $checkData      = $this->mod_getdata->getDataSelected($TABLE, $LOCK_FIELD, $LOCK_VAR);
             
             if($checkData->num_rows() > 0) {
-                echo "<script>
-                        alert('Data Sudah Tersedia');
-                        window.history.back();
-                      </script>";
-            } else {
+                // echo "<script>
+                //         alert('Data Sudah Tersedia');
+                //         window.history.back();
+                //       </script>";
+                echo $this->session->set_flashdata('msg', 
+                    '<div class="alert alert-danger">
+                        <h4>Oppss</h4>
+                        <p>Data Sudah Tersedia.</p>
+                    </div>');
                 $this->mod_data_jemaat->updateDataJemaat();
+                redirect(base_url('data_jemaat/formUpdate/'.$DESC));
+            } else {
+                echo $this->session->set_flashdata('msg', 
+                    '<div class="alert alert-success">
+                        <h4>Berhasil</h4>
+                        <p>Data Sudah Di Tambahkan.</p>
+                    </div>');
+                $this->mod_data_jemaat->updateNewDataJemaat();
                 redirect(base_url('data_jemaat'));
             }
+            redirect(base_url('data_jemaat'));
             
         } else {
             $this->load->view('login');

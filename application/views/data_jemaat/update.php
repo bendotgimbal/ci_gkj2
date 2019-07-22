@@ -63,7 +63,7 @@
 
                         <div class="form-group">
                             <label> EMAIL *</label>
-                            <input value="<?php if ($rsData->email <= 5){echo trim($status_email = 'Kosong');}else{echo trim($status_email = $rsData->email);}; ?>" maxlength="50" type="text" name="email" class="form-control input-sm" id="email" style="width:165px;" required>
+                            <input value="<?php echo trim($rsData->email); ?>" maxlength="50" type="text" name="email" class="form-control input-sm" id="email" style="width:165px;" required>
                         </div>
                         <input value="<?php echo trim($rsData->no_induk); ?>" name="no_induk" id="no_induk" class="form-control" type="hidden" style="width:335px;">
                         <input value="<?php echo trim($rsData->Field1); ?>" name="no_kk" id="no_kk" class="form-control" type="hidden" style="width:335px;">

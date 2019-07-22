@@ -77,7 +77,7 @@ class mod_data_jemaat extends CI_Model{
     function updateDataJemaat() {
         
         $data = array(
-            'id'         => trim(strip_tags($this->input->post('id'))),
+            // 'id'         => trim(strip_tags($this->input->post('id'))),
             'nik'         => trim(strip_tags($this->input->post('nik'))),
             'no_induk'         => trim(strip_tags($this->input->post('no_induk'))),
             'no_kk'         => trim(strip_tags($this->input->post('no_kk'))),
@@ -88,7 +88,25 @@ class mod_data_jemaat extends CI_Model{
         );
         
         // $this->db->where('id', $LOCK_ID);
-        // $update = $this->db->update('test_data', $data);
+        // $this->db->where('nik', $LOCK_ID);
+        $this->db->where('nik', $this->input->post('nik'));
+        $update = $this->db->update('test_data', $data);
+        return $update;
+    }
+
+    function updateNewDataJemaat() {
+        
+        $data = array(
+            'id'         => trim(strip_tags($this->input->post('id'))),
+            'nik'         => trim(strip_tags($this->input->post('nik'))),
+            'no_induk'         => trim(strip_tags($this->input->post('no_induk'))),
+            'no_kk'         => trim(strip_tags($this->input->post('no_kk'))),
+            'nama_jemaat'         => trim(strip_tags($this->input->post('nama'))), 
+            'tempat_lahir'      => trim(strip_tags($this->input->post('tmpt_lahir'))),
+            'tgl_lahir'      => trim(strip_tags($this->input->post('tgl_lahir'))),
+            'email'      => trim(strip_tags($this->input->post('email')))
+        );
+
         $update = $this->db->insert('test_data', $data);
         return $update;
     }

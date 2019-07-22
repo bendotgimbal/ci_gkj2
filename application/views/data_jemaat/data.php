@@ -22,6 +22,8 @@
                     <th>NIK</th>
                     <th>NO KK</th>
                     <th>HUBUNGAN KELUARGA</th>
+                    <th>JENIS KELAMIN</th>
+                    <th>EMAIL</th>
                     <!-- <th>USERNAME</th> -->
                     <!-- <th>PASSWORD</th> -->
                     <th width="100" class="text-center">ACTION</th>
@@ -43,6 +45,8 @@
                     <td><?php $huruf = explode(" ",$rsData->hubungan_keluarga); echo $huruf[0]; ?></td>
                     <!-- <td><?php echo $rsData->username; ?></td> -->
                     <!-- <td><?php echo $rsData->password; ?></td> -->
+                    <td><?php echo $rsData->jenis_kelamin; ?></td>
+                    <td><?php echo $rsData->email; ?></td>
                     <td class="text-center">
                         <!-- <button onclick="javascript:location.href='<?php echo base_url('data_jemaat/formUpdate/'.$rsData->um_user_id); ?>'this.disabled=true" type="button" class="btn btn-default btn-xs glyphicon glyphicon-pencil"><span></span></button> -->
 

@@ -10,27 +10,28 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>NAMA WARGA *</label>
-                            <input maxlength="50" type="text" name="url" class="form-control input-sm" id="url" required>
+                            <input maxlength="50" type="text" name="nama" class="form-control input-sm" id="nama" style="width:335px;" required>
                         </div>
                         
                         <div class="form-group">
-                            <label>PORT *</label>
-                            <input maxlength="50" type="text" name="port" class="form-control input-sm" id="port" required>
+                            <label>NIK *</label>
+                            <input maxlength="50" type="text" name="nik" class="form-control input-sm" id="nik" style="width:335px;" required>
                         </div>
                         
                         <div class="form-group">
-                            <label>USERNAME</label>
-                            <input maxlength="50" type="text" name="username" class="form-control input-sm" id="username"> 
+                            <label>NO.KK</label>
+                            <input maxlength="50" type="text" name="no_induk" class="form-control input-sm" id="no_induk" style="width:335px;"> 
                         </div>
 
                         <div class="form-group">
-                            <label>API KEY</label>
-                            <input maxlength="50" type="text" name="api_key" class="form-control input-sm" id="api_key"> 
+                            <label>TEMPAT & TANGGAL LAHIR</label>
+                            <input maxlength="50" type="text" name="tmpt_lahir" class="form-control input-sm" id="tmpt_lahir" style="width:165px;">
+                            <input maxlength="50" type="text" name="tgl_lahir" class="form-control input-sm" id="tgl_lahir" style="width:165px;margin-left: 170px;margin-top: -30px;">
                         </div>
 
                         <div class="form-group">
-                            <label>KETERANGAN</label>
-                            <input maxlength="50" type="text" name="keterangan" class="form-control input-sm" id="keterangan"> 
+                            <label>ALAMAT</label>
+                            <input maxlength="50" type="text" name="alamat" class="form-control input-sm" id="alamat" style="width:335px;height:80px;text-align:justify;"> 
                         </div>
                         
                        
@@ -48,3 +49,31 @@
     </div>       
     
 </form>
+
+<script type="text/javascript" src="<?php echo base_url().'assets/js/jquery.js'?>"></script>
+<script type="text/javascript">
+        $(document).ready(function(){
+             $('#nama').on('input',function(){
+                
+                var nama=$(this).val();
+                $.ajax({
+                    type : "POST",
+                    url  : "<?php echo base_url('data_jemaat/formadd/get_jemaat')?>",
+                    dataType : "JSON",
+                    data : {nama: nama},
+                    cache:false,
+                    success: function(data){
+                        $.each(data,function(nik, no_induk, tempat_lahir, tgl_lahir){
+                            $('[name="nik"]').val(data.nik);
+                            $('[name="no_induk"]').val(data.no_induk);
+                            $('[name="tempat_lahir"]').val(data.tempat_lahir);
+                            $('[name="tgl_lahir"]').val(data.tgl_lahir);
+                        });
+                        
+                    }
+                });
+                return false;
+           });
+
+        });
+    </script>
